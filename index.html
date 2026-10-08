@@ -1,0 +1,186 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>LUNA — 로고 & 명함 제작</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&family=Noto+Serif+KR:wght@400;700&family=IBM+Plex+Sans+KR:wght@400;600&family=Black+Han+Sans&family=Montserrat:wght@500;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <header class="top">
+    <div class="brand"><span class="brand-mark">L</span> LUNA</div>
+    <div class="top-note">로고 만들기 · 템플릿 명함 · 인쇄용 PDF / JPG 다운로드</div>
+  </header>
+
+  <main class="layout">
+    <!-- ───────── 편집 패널 ───────── -->
+    <section class="panel">
+      <nav class="tabs" role="tablist">
+        <button class="tab active" data-tab="info">① 정보 입력</button>
+        <button class="tab" data-tab="logo">② 로고</button>
+        <button class="tab" data-tab="design">③ 디자인</button>
+      </nav>
+
+      <!-- 정보 입력 -->
+      <div class="tab-body active" id="tab-info">
+        <div class="grid2">
+          <label>이름<input data-info="name" /></label>
+          <label>영문 이름<input data-info="nameEn" /></label>
+        </div>
+        <label>직함 / 부서<input data-info="title" /></label>
+        <label>회사명<input data-info="company" /></label>
+        <div class="grid2">
+          <label>휴대폰<input data-info="phone" /></label>
+          <label>대표전화<input data-info="tel" /></label>
+        </div>
+        <label>이메일<input data-info="email" type="email" /></label>
+        <label>웹사이트<input data-info="web" /></label>
+        <label>주소<input data-info="address" /></label>
+        <p class="hint">비워둔 항목은 명함에 표시되지 않습니다.</p>
+      </div>
+
+      <!-- 로고 -->
+      <div class="tab-body" id="tab-logo">
+        <div class="seg" id="logoMode">
+          <button data-mode="maker">로고 만들기</button>
+          <button data-mode="upload">이미지 업로드</button>
+          <button data-mode="none">사용 안 함</button>
+        </div>
+
+        <div class="logo-stage">
+          <canvas id="logoPreview"></canvas>
+          <canvas id="logoPreviewDark"></canvas>
+        </div>
+
+        <div id="logoMaker">
+          <div class="grid2">
+            <label>심볼
+              <select data-logo="symbol">
+                <option value="initials">이니셜</option>
+                <option value="mountain">산</option>
+                <option value="wave">파도</option>
+                <option value="leaf">잎</option>
+                <option value="star">별</option>
+                <option value="bolt">번개</option>
+                <option value="orbit">궤도</option>
+              </select>
+            </label>
+            <label>이니셜<input data-logo="initials" maxlength="3" /></label>
+          </div>
+          <div class="grid2">
+            <label>모양
+              <select data-logo="shape">
+                <option value="circle">원</option>
+                <option value="rounded">둥근 사각형</option>
+                <option value="square">사각형</option>
+                <option value="hexagon">육각형</option>
+                <option value="diamond">마름모</option>
+                <option value="shield">방패</option>
+                <option value="none">없음</option>
+              </select>
+            </label>
+            <label>스타일
+              <select data-logo="style">
+                <option value="fill">채움</option>
+                <option value="outline">외곽선</option>
+              </select>
+            </label>
+          </div>
+          <div class="grid2">
+            <label>배치
+              <select data-logo="layout">
+                <option value="horizontal">심볼 + 회사명 (가로)</option>
+                <option value="vertical">심볼 + 회사명 (세로)</option>
+                <option value="mark">심볼만</option>
+                <option value="text">회사명만</option>
+              </select>
+            </label>
+            <label>글꼴
+              <select data-logo="font">
+                <option value="Noto Sans KR">본고딕</option>
+                <option value="Black Han Sans">검은고딕</option>
+                <option value="Noto Serif KR">본명조</option>
+                <option value="IBM Plex Sans KR">IBM Plex</option>
+                <option value="Montserrat">Montserrat (영문)</option>
+              </select>
+            </label>
+          </div>
+          <label>로고 문구 (회사명)<input data-logo="word" /></label>
+          <div class="grid3">
+            <label>심볼 색<input type="color" data-logo="color" /></label>
+            <label>심볼 안 색<input type="color" data-logo="inner" /></label>
+            <label>문구 색<input type="color" data-logo="wordColor" /></label>
+          </div>
+          <div class="btn-row">
+            <button class="btn ghost" id="dlLogo">로고 PNG</button>
+            <button class="btn ghost" id="dlLogoWhite">흰색 로고 PNG</button>
+          </div>
+        </div>
+
+        <div id="logoUpload" hidden>
+          <label class="drop">
+            <input type="file" id="logoFile" accept="image/png,image/jpeg,image/svg+xml,image/webp" />
+            <span>클릭해서 로고 이미지 선택<br /><small>투명 배경 PNG 또는 SVG 권장</small></span>
+          </label>
+          <label class="check"><input type="checkbox" id="uploadWhite" /> 어두운 배경에서는 흰색으로 변환</label>
+        </div>
+      </div>
+
+      <!-- 디자인 -->
+      <div class="tab-body" id="tab-design">
+        <h3>템플릿</h3>
+        <div class="tpl-grid" id="tplGrid"></div>
+        <h3>색상</h3>
+        <div class="swatches" id="swatches"></div>
+        <div class="grid2">
+          <label>메인 색<input type="color" id="mainColor" /></label>
+          <label>포인트 색<input type="color" id="accentColor" /></label>
+        </div>
+        <label>명함 글꼴
+          <select id="cardFont">
+            <option value="Noto Sans KR">본고딕</option>
+            <option value="Noto Serif KR">본명조</option>
+            <option value="IBM Plex Sans KR">IBM Plex Sans KR</option>
+          </select>
+        </label>
+      </div>
+    </section>
+
+    <!-- ───────── 미리보기 & 다운로드 ───────── -->
+    <section class="preview">
+      <div class="cards">
+        <figure><canvas id="front"></canvas><figcaption>앞면 · 90 × 50 mm</figcaption></figure>
+        <figure><canvas id="back"></canvas><figcaption>뒷면</figcaption></figure>
+      </div>
+
+      <div class="export">
+        <h3>다운로드</h3>
+        <div class="export-opts">
+          <label>해상도
+            <select id="dpi">
+              <option value="300">300 dpi</option>
+              <option value="600" selected>600 dpi (고품질)</option>
+            </select>
+          </label>
+          <label class="check"><input type="checkbox" id="withBleed" checked /> 도련 1mm 포함 (92×52mm)</label>
+        </div>
+        <div class="btn-row wrap">
+          <button class="btn" id="dlFrontJpg">앞면 JPG</button>
+          <button class="btn" id="dlBackJpg">뒷면 JPG</button>
+          <button class="btn primary" id="dlPrintPdf">인쇄소용 PDF (재단선)</button>
+          <button class="btn" id="dlA4Pdf">A4 10장 배치 PDF</button>
+        </div>
+        <p class="hint">인쇄소용 PDF는 앞·뒷면 2페이지, 도련과 재단선이 포함됩니다. A4 배치 PDF는 사무실 프린터로 출력 후 잘라서 쓰기 좋습니다.</p>
+      </div>
+    </section>
+  </main>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="logo.js"></script>
+  <script src="templates.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
