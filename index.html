@@ -6,32 +6,99 @@
   <title>LUNA — 로고 & 명함 제작</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&family=Noto+Serif+KR:wght@400;700&family=IBM+Plex+Sans+KR:wght@400;600&family=Black+Han+Sans&family=Montserrat:wght@500;700;800&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=Bodoni+Moda:wght@400;500;700&family=Noto+Sans+KR:wght@400;500;700;900&family=Noto+Serif+KR:wght@400;500;700&family=IBM+Plex+Sans+KR:wght@400;600&family=Black+Han+Sans&family=Montserrat:wght@500;700;800&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
   <header class="top">
-    <div class="brand"><span class="brand-mark">L</span> LUNA</div>
-    <div class="top-note">로고 만들기 · 템플릿 명함 · 인쇄용 PDF / JPG 다운로드</div>
+    <a class="brand" href="#">LUNA<span class="brand-dot" aria-hidden="true"></span></a>
+    <nav class="top-nav">
+      <a href="#" class="nav-link" data-nav="home">템플릿</a>
+      <a href="#features" class="nav-link" data-nav="home">인쇄 안내</a>
+      <a href="#edit" class="pill dark" id="topCta">명함 만들기</a>
+    </nav>
   </header>
 
+  <!-- ───────── 메인: 템플릿 갤러리 ───────── -->
+  <div id="homeView">
+    <section class="hero">
+      <a class="badge" href="#gallery"><span class="badge-new">New</span><span>템플릿 <b id="heroCount">12</b>종 공개</span><span aria-hidden="true">↗</span></a>
+      <h1 class="hero-title">작은 종이 위에,<br />나다운 인상.</h1>
+      <p class="hero-sub">템플릿을 고르고 정보를 넣으면 끝. 인쇄소용 PDF와 고해상도 JPG로 바로 받으세요.</p>
+      <div class="hero-actions">
+        <a href="#gallery" class="pill dark">템플릿 둘러보기 <span aria-hidden="true">›</span></a>
+        <a href="#edit" class="pill light" id="heroLogo">로고 만들기</a>
+      </div>
+    </section>
+
+    <section class="gallery-wrap" id="gallery">
+      <div class="gallery-head">
+        <div>
+          <p class="eyebrow">Templates</p>
+          <h2 class="section-title">마음에 드는 명함에서 시작하세요.</h2>
+        </div>
+        <div class="personalize">
+          <span>내 정보로 미리보기</span>
+          <input data-info="name" placeholder="이름" aria-label="이름" />
+          <input data-info="company" placeholder="회사명" aria-label="회사명" />
+        </div>
+      </div>
+      <div class="chips" id="chips" role="tablist"></div>
+      <div class="gallery" id="gallery-grid"></div>
+    </section>
+
+    <section class="features" id="features">
+      <div class="features-copy">
+        <p class="eyebrow">For print</p>
+        <h2 class="section-title big">한 번의 디자인.<br />모든 출력.</h2>
+        <p class="hero-sub left">인쇄소에 그대로 넘길 수 있는 재단선 PDF부터, 사무실 프린터용 A4 배치까지. 따로 손볼 필요가 없습니다.</p>
+        <div class="hero-actions left">
+          <a href="#edit" class="pill dark">지금 만들기</a>
+          <a href="#gallery" class="pill light">템플릿 보기</a>
+        </div>
+        <dl class="stats">
+          <div><dt id="statCount">12</dt><dd>템플릿</dd></div>
+          <div><dt>600dpi</dt><dd>고해상도 출력</dd></div>
+          <div><dt>92×52</dt><dd>도련 포함 mm</dd></div>
+        </dl>
+      </div>
+      <div class="feature-tiles">
+        <div class="ftile"><b>로고 메이커</b><p>심볼·모양·글꼴을 조합해 로고를 만들고 PNG로 받기</p><span>Logo</span></div>
+        <div class="ftile"><b>인쇄소용 PDF</b><p>도련 1mm와 재단선이 들어간 앞·뒷면 2페이지</p><span>Print</span></div>
+        <div class="ftile"><b>고해상도 JPG</b><p>300·600dpi, 실제 크기 정보까지 기록</p><span>Image</span></div>
+        <div class="ftile"><b>A4 10장 배치</b><p>사무실 프린터로 출력해 잘라 쓰기</p><span>Office</span></div>
+      </div>
+    </section>
+
+    <footer class="foot">
+      <span class="brand small">LUNA<span class="brand-dot" aria-hidden="true"></span></span>
+      <span>모든 작업은 브라우저 안에서 처리되며, 입력한 정보는 서버로 전송되지 않습니다.</span>
+    </footer>
+  </div>
+
+  <!-- ───────── 편집기 ───────── -->
+  <div id="editorView" hidden>
+  <div class="editor-bar">
+    <a href="#gallery" class="back">← 템플릿 갤러리</a>
+  </div>
   <main class="layout">
     <!-- ───────── 편집 패널 ───────── -->
     <section class="panel">
       <nav class="tabs" role="tablist">
-        <button class="tab active" data-tab="info">① 정보 입력</button>
+        <button class="tab" data-tab="info">① 정보 입력</button>
         <button class="tab" data-tab="logo">② 로고</button>
-        <button class="tab" data-tab="design">③ 디자인</button>
+        <button class="tab active" data-tab="design">③ 디자인</button>
       </nav>
 
       <!-- 정보 입력 -->
-      <div class="tab-body active" id="tab-info">
+      <div class="tab-body" id="tab-info">
         <div class="grid2">
           <label>이름<input data-info="name" /></label>
           <label>영문 이름<input data-info="nameEn" /></label>
         </div>
         <label>직함 / 부서<input data-info="title" /></label>
         <label>회사명<input data-info="company" /></label>
+        <label>브랜드 소개 / 슬로건<input data-info="tagline" placeholder="예: Design & Art Direction" /></label>
         <div class="grid2">
           <label>휴대폰<input data-info="phone" /></label>
           <label>대표전화<input data-info="tel" /></label>
@@ -44,6 +111,8 @@
 
       <!-- 로고 -->
       <div class="tab-body" id="tab-logo">
+        <label class="check"><input type="checkbox" id="useLogo" /> 명함에 로고 적용</label>
+        <p class="hint logo-note">기본은 회사명을 활용한 타이포그래피입니다. 로고를 적용하면 브랜드 면의 워드마크 또는 이니셜을 대체합니다.</p>
         <div class="seg" id="logoMode">
           <button data-mode="maker">로고 만들기</button>
           <button data-mode="upload">이미지 업로드</button>
@@ -130,17 +199,22 @@
       </div>
 
       <!-- 디자인 -->
-      <div class="tab-body" id="tab-design">
-        <h3>템플릿</h3>
+      <div class="tab-body active" id="tab-design">
+        <h3 class="tpl-heading">템플릿 <span id="tplCount"></span></h3>
+        <p class="hint collection-note">여백과 타이포그래피로 완성한 12가지 인상.<br />위는 브랜드 면, 아래는 정보 면입니다.</p>
         <div class="tpl-grid" id="tplGrid"></div>
         <h3>색상</h3>
+        <label class="check"><input type="checkbox" id="recommendedColors" checked /> 템플릿 추천 색상</label>
         <div class="swatches" id="swatches"></div>
         <div class="grid2">
-          <label>메인 색<input type="color" id="mainColor" /></label>
-          <label>포인트 색<input type="color" id="accentColor" /></label>
+          <label>글자 / 브랜드 색<input type="color" id="mainColor" /></label>
+          <label>바탕 / 포인트 색<input type="color" id="accentColor" /></label>
         </div>
         <label>명함 글꼴
           <select id="cardFont">
+            <option value="auto">템플릿 추천 서체</option>
+            <option value="DM Sans">DM Sans + 본고딕</option>
+            <option value="Bodoni Moda">Bodoni Moda + 본명조</option>
             <option value="Noto Sans KR">본고딕</option>
             <option value="Noto Serif KR">본명조</option>
             <option value="IBM Plex Sans KR">IBM Plex Sans KR</option>
@@ -151,9 +225,10 @@
 
     <!-- ───────── 미리보기 & 다운로드 ───────── -->
     <section class="preview">
+      <div class="preview-heading"><h1 id="previewName">에어</h1><p id="previewDescription">작은 워드마크, 크게 비운 여백</p></div>
       <div class="cards">
-        <figure><canvas id="front"></canvas><figcaption>앞면 · 90 × 50 mm</figcaption></figure>
-        <figure><canvas id="back"></canvas><figcaption>뒷면</figcaption></figure>
+        <figure><canvas id="front"></canvas><figcaption>앞면 — 브랜드 · 90 × 50 mm</figcaption></figure>
+        <figure><canvas id="back"></canvas><figcaption>뒷면 — 정보</figcaption></figure>
       </div>
 
       <div class="export">
@@ -177,6 +252,7 @@
       </div>
     </section>
   </main>
+  </div>
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <script src="logo.js"></script>

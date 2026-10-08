@@ -1,22 +1,25 @@
 const STORAGE_KEY = 'luna-namecard-v1';
 
 const PALETTES = [
-  ['#1f3a5f', '#d9a441'],
-  ['#0f5c4c', '#9fd3a8'],
-  ['#8c1c2b', '#e9c46a'],
-  ['#222222', '#ff7a1a'],
-  ['#4b2e83', '#f2a7c3'],
-  ['#0a6c8a', '#7fd1e3'],
-  ['#5a4636', '#c9a77c'],
+  ['#191918', '#e9e5db'],
+  ['#131313', '#ffffff'],
+  ['#111c12', '#30dc35'],
+  ['#124c38', '#f5f5ef'],
+  ['#253fc5', '#f2f1e9'],
+  ['#312a48', '#e1dcef'],
+  ['#171710', '#eeed9a'],
 ];
 
 const DEFAULT_STATE = {
-  template: 'classic',
+  designVersion: 2,
+  template: 'air',
   c: PALETTES[0][0],
   a: PALETTES[0][1],
-  font: 'Noto Sans KR',
+  font: 'auto',
+  customColors: false,
+  useLogo: false,
   info: {
-    name: '홍길동', nameEn: 'Gildong Hong', title: '대표이사 / CEO', company: '한빛테크',
+    name: '홍길동', nameEn: 'Gildong Hong', title: '대표이사 / CEO', company: '한빛테크', tagline: '',
     phone: '010-1234-5678', tel: '02-123-4567', email: 'gildong@hanbit.co.kr',
     web: 'www.hanbit.co.kr', address: '서울특별시 강남구 테헤란로 123, 4층',
   },
@@ -37,7 +40,15 @@ const $$ = (s) => [...document.querySelectorAll(s)];
 function load() {
   try {
     const saved = JSON.parse(localStorage.getItem(STORAGE_KEY));
-    if (saved) return { ...DEFAULT_STATE, ...saved, info: { ...DEFAULT_STATE.info, ...saved.info }, logo: { ...DEFAULT_STATE.logo, ...saved.logo } };
+    if (saved) {
+      const merged = { ...DEFAULT_STATE, ...saved, info: { ...DEFAULT_STATE.info, ...saved.info }, logo: { ...DEFAULT_STATE.logo, ...saved.logo } };
+      if (saved.designVersion !== 2) {
+        // Preserve personal information and logo settings while replacing the old design collection.
+        Object.assign(merged, { designVersion: 2, template: 'air', font: 'auto', customColors: false, useLogo: false });
+      }
+      if (!TEMPLATES.some(t => t.id === merged.template)) merged.template = 'air';
+      return merged;
+    }
   } catch {}
   return structuredClone(DEFAULT_STATE);
 }
@@ -51,7 +62,7 @@ function save() {
 // ───────── 폰트 준비 (한글 웹폰트는 글자 단위로 분할 로드되므로 실제 문자열로 요청) ─────────
 async function prepFonts() {
   const sample = [...Object.values(state.info), state.logo.word, state.logo.initials, 'MTEWA·0123456789'].join('');
-  const fonts = new Set([state.font, state.logo.font, 'Noto Sans KR']);
+  const fonts = new Set([state.font === 'auto' ? SANS : state.font, state.logo.font, SANS, SERIF, 'Noto Sans KR', 'Noto Serif KR']);
   const jobs = [];
   for (const f of fonts) for (const w of [400, 500, 700]) jobs.push(document.fonts.load(`${w} 16px "${f}"`, sample));
   await Promise.race([Promise.allSettled(jobs), new Promise((r) => setTimeout(r, 3000))]);
@@ -82,7 +93,11 @@ function paintLogoPreview(canvas, img) {
 
 // ───────── 렌더링 ─────────
 function cardData(logos) {
-  return { info: state.info, c: state.c, a: state.a, font: state.font, ...logos };
+  return {
+    info: state.info, c: state.c, a: state.a, font: state.font, customColors: state.customColors,
+    initials: state.logo.initials,
+    ...(state.useLogo ? logos : { logo: null, logoWhite: null }),
+  };
 }
 const tplById = (id) => TEMPLATES.find((t) => t.id === id) || TEMPLATES[0];
 
@@ -96,7 +111,10 @@ async function render() {
   await prepFonts();
   const logos = currentLogos();
   const data = cardData(logos);
+  if (currentView() === 'home') { renderGallery(data); return; }
   const tpl = tplById(state.template);
+  $('#previewName').textContent = tpl.name;
+  $('#previewDescription').textContent = tpl.description;
   for (const side of ['front', 'back']) {
     const cv = $('#' + side);
     renderCard(cv, tpl, side, data, { dpi: previewDpi(cv) });
@@ -104,9 +122,13 @@ async function render() {
   paintLogoPreview($('#logoPreview'), logos.logo);
   paintLogoPreview($('#logoPreviewDark'), logos.logoWhite);
   $$('.tpl').forEach((btn) => {
-    const cv = btn.querySelector('canvas');
-    renderCard(cv, tplById(btn.dataset.id), 'front', data, { dpi: 120 });
-    btn.classList.toggle('active', btn.dataset.id === state.template);
+    const template = tplById(btn.dataset.id);
+    btn.querySelectorAll('canvas').forEach(cv => {
+      renderCard(cv, template, cv.dataset.side, data, { dpi: 100 });
+    });
+    const selected = btn.dataset.id === state.template;
+    btn.classList.toggle('active', selected);
+    btn.setAttribute('aria-pressed', String(selected));
   });
 }
 function scheduleRender() {
@@ -132,6 +154,7 @@ function bindUI() {
         $('[data-logo="word"]').value = el.value;
       }
       state.info[key] = el.value;
+      $$(`[data-info="${key}"]`).forEach((o) => { if (o !== el) o.value = el.value; });
       scheduleRender();
     });
   });
@@ -150,6 +173,8 @@ function bindUI() {
   };
   $$('#logoMode button').forEach((b) => b.addEventListener('click', () => setMode(b.dataset.mode)));
   setMode(state.logoMode);
+  $('#useLogo').checked = state.useLogo;
+  $('#useLogo').addEventListener('change', e => { state.useLogo = e.target.checked; scheduleRender(); });
 
   $('#logoFile').addEventListener('change', (e) => {
     const file = e.target.files[0];
@@ -163,37 +188,52 @@ function bindUI() {
 
   // 템플릿 썸네일
   const grid = $('#tplGrid');
+  $('#tplCount').textContent = `${TEMPLATES.length}종`;
   TEMPLATES.forEach((t) => {
     const btn = document.createElement('button');
     btn.className = 'tpl';
     btn.dataset.id = t.id;
-    btn.innerHTML = `<canvas></canvas><span>${t.name}</span>`;
-    btn.addEventListener('click', () => { state.template = t.id; scheduleRender(); });
+    btn.type = 'button';
+    btn.setAttribute('aria-label', `${t.name}: ${t.description}`);
+    btn.innerHTML = `<div class="tpl-pair"><canvas data-side="front" aria-hidden="true"></canvas><canvas data-side="back" aria-hidden="true"></canvas></div><span>${t.name}</span><small>${t.description}</small>`;
+    btn.addEventListener('click', () => { state.template = t.id; syncColors(); scheduleRender(); });
     grid.appendChild(btn);
   });
 
   // 색상
   const sw = $('#swatches');
   const syncColors = () => {
-    $('#mainColor').value = state.c;
-    $('#accentColor').value = state.a;
-    $$('.swatch').forEach((s) => s.classList.toggle('active', s.dataset.c === state.c && s.dataset.a === state.a));
+    const { c, a } = templateStyle(tplById(state.template), cardData({}));
+    $('#mainColor').value = c;
+    $('#accentColor').value = a;
+    $('#recommendedColors').checked = !state.customColors;
+    $$('.swatch').forEach((s) => s.classList.toggle('active', s.dataset.c === c && s.dataset.a === a));
   };
+  const customizeColors = () => {
+    const { c, a } = templateStyle(tplById(state.template), cardData({}));
+    state.c = c; state.a = a; state.customColors = true;
+  };
+  $('#recommendedColors').addEventListener('change', e => {
+    if (e.target.checked) state.customColors = false;
+    else customizeColors();
+    syncColors(); scheduleRender();
+  });
   PALETTES.forEach(([c, a]) => {
     const s = document.createElement('button');
     s.className = 'swatch';
     s.dataset.c = c; s.dataset.a = a;
     s.title = `${c} / ${a}`;
+    s.setAttribute('aria-label', `색상 ${c} / ${a}`);
     s.style.background = `linear-gradient(135deg, ${c} 0 60%, ${a} 60%)`;
     s.addEventListener('click', () => {
       // 로고 색이 메인 색을 따라가고 있었다면 함께 변경
       if (state.logo.color === state.c) { state.logo.color = c; $('[data-logo="color"]').value = c; }
-      state.c = c; state.a = a; syncColors(); scheduleRender();
+      state.c = c; state.a = a; state.customColors = true; syncColors(); scheduleRender();
     });
     sw.appendChild(s);
   });
-  $('#mainColor').addEventListener('input', (e) => { state.c = e.target.value; syncColors(); scheduleRender(); });
-  $('#accentColor').addEventListener('input', (e) => { state.a = e.target.value; syncColors(); scheduleRender(); });
+  $('#mainColor').addEventListener('input', (e) => { customizeColors(); state.c = e.target.value; syncColors(); scheduleRender(); });
+  $('#accentColor').addEventListener('input', (e) => { customizeColors(); state.a = e.target.value; syncColors(); scheduleRender(); });
   syncColors();
 
   $('#cardFont').value = state.font;
@@ -348,7 +388,78 @@ async function exportA4Pdf() {
   pdf.save(`${fileBase()}_A4_10장.pdf`);
 }
 
+// ───────── 메인 갤러리 ─────────
+const TAGS = {
+  air: ['minimal'], serif: ['classic'], signal: ['bold'], monogram: ['minimal'],
+  folio: ['minimal'], grove: ['classic'], offset: ['bold'], poster: ['bold'],
+  index: ['minimal'], verso: ['bold'], vertical: ['bold'], signature: ['classic'],
+};
+const CATEGORIES = [['all', '전체'], ['minimal', '미니멀'], ['classic', '클래식'], ['bold', '볼드']];
+let category = 'all';
+
+function buildGallery() {
+  const chips = $('#chips');
+  CATEGORIES.forEach(([id, label]) => {
+    const b = document.createElement('button');
+    b.type = 'button'; b.className = 'chip'; b.dataset.cat = id; b.textContent = label;
+    b.addEventListener('click', () => { category = id; filterGallery(); });
+    chips.appendChild(b);
+  });
+
+  const grid = $('#gallery-grid');
+  TEMPLATES.forEach((t) => {
+    const a = document.createElement('a');
+    a.className = 'gtile';
+    a.href = '#edit';
+    a.dataset.id = t.id;
+    a.setAttribute('aria-label', `${t.name} 템플릿으로 시작: ${t.description}`);
+    a.innerHTML = `
+      <div class="gstage">
+        <canvas data-side="front" aria-hidden="true"></canvas>
+        <canvas data-side="back" aria-hidden="true"></canvas>
+      </div>
+      <div class="gmeta"><span><b>${t.name}</b><small>${t.description}</small></span><em>편집하기 →</em></div>`;
+    // 편집기의 템플릿 버튼을 눌러 색상 상태까지 함께 맞춘다
+    a.addEventListener('click', () => { $(`.tpl[data-id="${t.id}"]`).click(); openTab('info'); });
+    grid.appendChild(a);
+  });
+  $('#heroCount').textContent = TEMPLATES.length;
+  $('#statCount').textContent = TEMPLATES.length;
+  filterGallery();
+}
+
+function filterGallery() {
+  $$('.chip').forEach((c) => c.classList.toggle('active', c.dataset.cat === category));
+  $$('.gtile').forEach((t) => { t.hidden = category !== 'all' && !(TAGS[t.dataset.id] || []).includes(category); });
+}
+
+function renderGallery(data) {
+  $$('.gtile').forEach((tile) => {
+    const tpl = tplById(tile.dataset.id);
+    tile.querySelectorAll('canvas').forEach((cv) => renderCard(cv, tpl, cv.dataset.side, data, { dpi: previewDpi(cv) }));
+  });
+}
+
+// ───────── 화면 전환 (#edit = 편집기, 그 외 = 메인) ─────────
+function currentView() { return location.hash === '#edit' ? 'edit' : 'home'; }
+function openTab(name) { $(`.tab[data-tab="${name}"]`)?.click(); }
+
+function route() {
+  const view = currentView();
+  $('#homeView').hidden = view !== 'home';
+  $('#editorView').hidden = view !== 'edit';
+  $('#topCta').hidden = view === 'edit';
+  document.body.dataset.view = view;
+  if (view === 'edit') window.scrollTo(0, 0);
+  else if (location.hash) document.querySelector(location.hash)?.scrollIntoView();
+  scheduleRender();
+}
+
 // ───────── 시작 ─────────
 bindUI();
+buildGallery();
+$('#heroLogo').addEventListener('click', () => setTimeout(() => openTab('logo')));
+window.addEventListener('hashchange', route);
+route();
 loadUpload().then(render);
 document.fonts.ready.then(scheduleRender);
