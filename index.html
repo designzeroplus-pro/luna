@@ -7,6 +7,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=Bodoni+Moda:wght@400;500;700&family=Noto+Sans+KR:wght@400;500;700;900&family=Noto+Serif+KR:wght@400;500;700&family=IBM+Plex+Sans+KR:wght@400;600&family=Black+Han+Sans&family=Montserrat:wght@500;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard-dynamic-subset.min.css" />
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
@@ -22,7 +23,7 @@
   <!-- ───────── 메인: 템플릿 갤러리 ───────── -->
   <div id="homeView">
     <section class="hero">
-      <a class="badge" href="#gallery"><span class="badge-new">New</span><span>템플릿 <b id="heroCount">12</b>종 공개</span><span aria-hidden="true">↗</span></a>
+      <a class="badge" href="#gallery"><span class="badge-new">New</span><span>템플릿 <b id="heroCount">13</b>종 공개</span><span aria-hidden="true">↗</span></a>
       <h1 class="hero-title">작은 종이 위에,<br />나다운 인상.</h1>
       <p class="hero-sub">템플릿을 고르고 정보를 넣으면 끝. 인쇄소용 PDF와 고해상도 JPG로 바로 받으세요.</p>
       <div class="hero-actions">
@@ -57,7 +58,7 @@
           <a href="#gallery" class="pill light">템플릿 보기</a>
         </div>
         <dl class="stats">
-          <div><dt id="statCount">12</dt><dd>템플릿</dd></div>
+          <div><dt id="statCount">13</dt><dd>템플릿</dd></div>
           <div><dt>600dpi</dt><dd>고해상도 출력</dd></div>
           <div><dt>92×52</dt><dd>도련 포함 mm</dd></div>
         </dl>
@@ -96,7 +97,10 @@
           <label>이름<input data-info="name" /></label>
           <label>영문 이름<input data-info="nameEn" /></label>
         </div>
-        <label>직함 / 부서<input data-info="title" /></label>
+        <div class="grid2">
+          <label>직함 / 부서<input data-info="title" /></label>
+          <label>영문 직함<input data-info="titleEn" placeholder="예: Assistant Manager" /></label>
+        </div>
         <label>회사명<input data-info="company" /></label>
         <label>브랜드 소개 / 슬로건<input data-info="tagline" placeholder="예: Design & Art Direction" /></label>
         <div class="grid2">
@@ -201,7 +205,7 @@
       <!-- 디자인 -->
       <div class="tab-body active" id="tab-design">
         <h3 class="tpl-heading">템플릿 <span id="tplCount"></span></h3>
-        <p class="hint collection-note">여백과 타이포그래피로 완성한 12가지 인상.<br />위는 브랜드 면, 아래는 정보 면입니다.</p>
+        <p class="hint collection-note">여백과 타이포그래피로 완성한 다양한 인상.<br />위는 브랜드 면, 아래는 정보 면입니다.</p>
         <div class="tpl-grid" id="tplGrid"></div>
         <h3>색상</h3>
         <label class="check"><input type="checkbox" id="recommendedColors" checked /> 템플릿 추천 색상</label>

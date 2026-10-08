@@ -150,9 +150,66 @@ function relief(ctx, color) {
   ctx.restore();
 }
 
+const PT = (pt) => pt * 25.4 / 72;
+
+// 호라이즌 템플릿의 로고 자리. 로고를 적용했으면 그 이미지를, 아니면 LUNA 워드마크(회사명 + 포인트 점)를 그린다.
+function horizonLogo(ctx, d, x, cy, maxW, maxH, align) {
+  const img = d.logo;
+  if (img) return logo(ctx, img, x, cy, maxW, maxH, align, 'middle');
+  const name = String(d.info.company || '').trim();
+  if (!name) return;
+  const tag = String(d.info.tagline || '').trim();
+  const size = maxH * 0.72; // 원본 로고의 대문자 높이(약 3.9mm)에 맞춤
+  ctx.save();
+  fontStyle(ctx, size, { font: 'DM Sans', w: 500, ls: -size * 0.045 });
+  let w = ctx.measureText(name).width;
+  const k = Math.min(1, (maxW - size * 0.3) / w);
+  const fs = size * k;
+  fontStyle(ctx, fs, { font: 'DM Sans', w: 500, ls: -fs * 0.045 });
+  w = ctx.measureText(name).width;
+  const dot = fs * 0.22, total = w + dot * 0.6 + dot;
+  const left = align === 'center' ? x - total / 2 : x - total;
+  const m = ctx.measureText(name);
+  const base = tag ? cy - maxH / 2 + m.actualBoundingBoxAscent : cy + m.actualBoundingBoxAscent / 2;
+  ctx.fillStyle = d.c; ctx.textAlign = 'left'; ctx.textBaseline = 'alphabetic';
+  ctx.fillText(name, left, base);
+  ctx.fillStyle = d.a;
+  ctx.fillRect(left + w + dot * 0.6, base - dot, dot, dot);
+  ctx.restore();
+  if (tag) {
+    text(ctx, tag.toUpperCase(), align === 'center' ? x : x, cy + maxH / 2, {
+      font: 'Pretendard', w: 500, size: maxH * 0.24, color: '#6d6e71', ls: maxH * 0.24 * 0.35,
+      align: align === 'center' ? 'center' : 'right', max: maxW,
+    });
+  }
+}
+
 // Each template owns a recommended ink/paper palette and a display typeface.
 // Front = brand face; back = contact face. All contact fields are retained.
 const TEMPLATES = [
+  {
+    // horizon_namecards.ai 원본 재현. 좌표·글자 크기는 원본 그대로(mm, pt→mm), 로고만 교체.
+    id: 'horizon', name: '호라이즌', description: '중앙 로고와 정돈된 정보 배치',
+    palette: ['#161c21', '#7755d8'], display: 'Pretendard', body: 'Pretendard',
+    front(ctx, d) {
+      fillAll(ctx, '#ffffff');
+      horizonLogo(ctx, d, 45, 25, 28.8, 7.75, 'center');
+    },
+    back(ctx, d) {
+      const i = d.info, f = d.font, ink = d.c;
+      fillAll(ctx, '#ffffff');
+      horizonLogo(ctx, d, 84.1, 8.03, 23.5, 6.3, 'right');
+      const nw = text(ctx, i.name, 4.81, 19.01, { font: f, w: 700, size: PT(9), color: ink, ls: 0.367 }); // 원본 자간 약 115
+      text(ctx, i.title, 4.81 + nw + 2.09, 19.01, { font: f, w: 700, size: PT(6), color: ink, ls: 0.145, max: 60 });
+      text(ctx, [i.nameEn, i.titleEn].filter(v => v && v.trim()).join(', '), 4.81, 22.83, { font: f, w: 400, size: PT(6.5), color: ink, max: 80 });
+      [i.phone, i.email, i.tel && `T ${i.tel}`].filter(v => v && v.trim()).forEach((v, n) => {
+        text(ctx, v, 4.81, 29.66 + n * PT(9), { font: f, w: 500, size: PT(6.5), color: ink, max: 80 });
+      });
+      [i.company, i.address].filter(v => v && v.trim()).forEach((v, n) => {
+        text(ctx, v, 4.81, 42.7 + n * PT(9), { font: f, w: 500, size: PT(6), color: ink, max: 80 });
+      });
+    },
+  },
   {
     id: 'air', name: '에어', description: '작은 워드마크, 크게 비운 여백',
     palette: ['#191918', '#e9e5db'], display: SANS,
@@ -373,7 +430,7 @@ const TEMPLATES = [
 function templateStyle(tpl, data) {
   const [c, a] = data.customColors ? [data.c, data.a] : tpl.palette;
   const automatic = !data.font || data.font === 'auto';
-  return { ...data, c, a, font: automatic ? SANS : data.font, display: automatic ? tpl.display : data.font };
+  return { ...data, c, a, font: automatic ? (tpl.body || SANS) : data.font, display: automatic ? tpl.display : data.font };
 }
 
 function renderCard(canvas, tpl, side, data, { dpi = 300, bleed = false } = {}) {

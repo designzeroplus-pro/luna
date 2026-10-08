@@ -12,14 +12,14 @@ const PALETTES = [
 
 const DEFAULT_STATE = {
   designVersion: 2,
-  template: 'air',
+  template: 'horizon',
   c: PALETTES[0][0],
   a: PALETTES[0][1],
   font: 'auto',
   customColors: false,
   useLogo: false,
   info: {
-    name: '이월터', nameEn: 'Walter Lee', title: '대표이사 / CEO', company: 'LUNA', tagline: '',
+    name: '이월터', nameEn: 'Walter Lee', title: '대표이사 / CEO', titleEn: '', company: 'LUNA', tagline: '',
     phone: '010-1234-5678', tel: '02-123-4567', email: 'walter@luna.co.kr',
     web: 'www.luna.co.kr', address: '서울특별시 강남구 테헤란로 123, 4층',
   },
@@ -73,7 +73,7 @@ function save() {
 // ───────── 폰트 준비 (한글 웹폰트는 글자 단위로 분할 로드되므로 실제 문자열로 요청) ─────────
 async function prepFonts() {
   const sample = [...Object.values(state.info), state.logo.word, state.logo.initials, 'MTEWA·0123456789'].join('');
-  const fonts = new Set([state.font === 'auto' ? SANS : state.font, state.logo.font, SANS, SERIF, 'Noto Sans KR', 'Noto Serif KR']);
+  const fonts = new Set([state.font === 'auto' ? SANS : state.font, state.logo.font, SANS, SERIF, 'Pretendard', 'Noto Sans KR', 'Noto Serif KR']);
   const jobs = [];
   for (const f of fonts) for (const w of [400, 500, 700]) jobs.push(document.fonts.load(`${w} 16px "${f}"`, sample));
   await Promise.race([Promise.allSettled(jobs), new Promise((r) => setTimeout(r, 3000))]);
@@ -401,6 +401,7 @@ async function exportA4Pdf() {
 
 // ───────── 메인 갤러리 ─────────
 const TAGS = {
+  horizon: ['minimal', 'classic'],
   air: ['minimal'], serif: ['classic'], signal: ['bold'], monogram: ['minimal'],
   folio: ['minimal'], grove: ['classic'], offset: ['bold'], poster: ['bold'],
   index: ['minimal'], verso: ['bold'], vertical: ['bold'], signature: ['classic'],
