@@ -19,14 +19,14 @@ const DEFAULT_STATE = {
   customColors: false,
   useLogo: false,
   info: {
-    name: '홍길동', nameEn: 'Gildong Hong', title: '대표이사 / CEO', company: '루나', tagline: '',
-    phone: '010-1234-5678', tel: '02-123-4567', email: 'gildong@luna.co.kr',
+    name: '이월터', nameEn: 'Walter Lee', title: '대표이사 / CEO', company: 'LUNA', tagline: '',
+    phone: '010-1234-5678', tel: '02-123-4567', email: 'walter@luna.co.kr',
     web: 'www.luna.co.kr', address: '서울특별시 강남구 테헤란로 123, 4층',
   },
   logoMode: 'maker',
   logo: {
     symbol: 'initials', initials: 'L', shape: 'rounded', style: 'fill', layout: 'horizontal',
-    font: 'Noto Sans KR', word: '루나', color: '#1f3a5f', inner: '#ffffff', wordColor: '#1d1d1f',
+    font: 'Noto Sans KR', word: 'LUNA', color: '#1f3a5f', inner: '#ffffff', wordColor: '#1d1d1f',
   },
   upload: null,       // dataURL
   uploadWhite: false,
@@ -47,14 +47,17 @@ function load() {
         Object.assign(merged, { designVersion: 2, template: 'air', font: 'auto', customColors: false, useLogo: false });
       }
       if (!TEMPLATES.some(t => t.id === merged.template)) merged.template = 'air';
-      // 예전 예시 값(한빛테크)이 그대로 남아 있으면 새 예시 값으로 교체
-      const OLD_SAMPLE = {
-        info: { company: '한빛테크', email: 'gildong@hanbit.co.kr', web: 'www.hanbit.co.kr' },
-        logo: { initials: 'HB', word: '한빛테크' },
+      // 예전 버전의 예시 값이 그대로 남아 있으면 현재 예시 값으로 교체
+      const OLD_SAMPLES = {
+        info: {
+          name: ['홍길동'], nameEn: ['Gildong Hong'], company: ['한빛테크', '루나'],
+          email: ['gildong@hanbit.co.kr', 'gildong@luna.co.kr'], web: ['www.hanbit.co.kr'],
+        },
+        logo: { initials: ['HB'], word: ['한빛테크', '루나'] },
       };
       for (const group of ['info', 'logo'])
-        for (const [k, v] of Object.entries(OLD_SAMPLE[group]))
-          if (merged[group][k] === v) merged[group][k] = DEFAULT_STATE[group][k];
+        for (const [k, olds] of Object.entries(OLD_SAMPLES[group]))
+          if (olds.includes(merged[group][k])) merged[group][k] = DEFAULT_STATE[group][k];
       return merged;
     }
   } catch {}
