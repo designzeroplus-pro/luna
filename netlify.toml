@@ -1,0 +1,17 @@
+# Netlify 배포 설정. 빌드 과정 없이 저장소 루트를 그대로 배포한다.
+[build]
+  publish = "."
+  command = ""
+
+# README·설정 파일은 굳이 공개할 필요가 없어 접근을 막는다
+[[redirects]]
+  from = "/README.md"
+  to = "/"
+  status = 404
+  force = true
+
+[[redirects]]
+  from = "/netlify.toml"
+  to = "/"
+  status = 404
+  force = true
