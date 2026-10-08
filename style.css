@@ -105,8 +105,52 @@ body[data-view="edit"] .nav-link[href="#features"] { display: none; }
 }
 .gstage canvas[data-side="front"] { transform: translate(-7%, -9%) rotate(-3deg); z-index: 2; }
 .gstage canvas[data-side="back"] { transform: translate(9%, 11%) rotate(3deg); z-index: 1; }
-.gtile:hover canvas[data-side="front"] { transform: translate(-11%, -15%) rotate(-5deg); }
-.gtile:hover canvas[data-side="back"] { transform: translate(13%, 16%) rotate(5deg); }
+
+/* 뒷면 보기: 뒤 카드가 옆으로 빠졌다가 앞으로 올라오는 셔플 */
+.gcell { position: relative; display: flex; flex-direction: column; }
+.gcell > .gtile { flex: 1; overflow: hidden; }
+.gstage canvas { transition: none; }
+.gcell.show-back canvas[data-side="back"] { animation: luna-to-front .6s cubic-bezier(.3,.7,.2,1) forwards; }
+.gcell.show-back canvas[data-side="front"] { animation: luna-to-back .6s cubic-bezier(.3,.7,.2,1) forwards; }
+.gcell.was-back canvas[data-side="front"] { animation: luna-front-return .6s cubic-bezier(.3,.7,.2,1) forwards; }
+.gcell.was-back canvas[data-side="back"] { animation: luna-back-return .6s cubic-bezier(.3,.7,.2,1) forwards; }
+@keyframes luna-to-front {
+  0%   { transform: translate(9%, 11%) rotate(3deg); z-index: 1; }
+  45%  { transform: translate(34%, 3%) rotate(7deg); z-index: 1; }
+  55%  { transform: translate(34%, 3%) rotate(7deg); z-index: 3; }
+  100% { transform: translate(-7%, -9%) rotate(-3deg); z-index: 3; }
+}
+@keyframes luna-to-back {
+  0%   { transform: translate(-7%, -9%) rotate(-3deg); z-index: 2; }
+  45%  { transform: translate(-16%, -4%) rotate(-6deg); z-index: 2; }
+  55%  { transform: translate(-16%, -4%) rotate(-6deg); z-index: 0; }
+  100% { transform: translate(9%, 11%) rotate(3deg); z-index: 0; }
+}
+@keyframes luna-front-return {
+  0%   { transform: translate(9%, 11%) rotate(3deg); z-index: 0; }
+  45%  { transform: translate(34%, 3%) rotate(7deg); z-index: 0; }
+  55%  { transform: translate(34%, 3%) rotate(7deg); z-index: 3; }
+  100% { transform: translate(-7%, -9%) rotate(-3deg); z-index: 3; }
+}
+@keyframes luna-back-return {
+  0%   { transform: translate(-7%, -9%) rotate(-3deg); z-index: 3; }
+  45%  { transform: translate(-16%, -4%) rotate(-6deg); z-index: 3; }
+  55%  { transform: translate(-16%, -4%) rotate(-6deg); z-index: 1; }
+  100% { transform: translate(9%, 11%) rotate(3deg); z-index: 1; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .gcell canvas { animation-duration: .01s !important; }
+}
+.gflip {
+  position: absolute; top: 12px; right: 12px; z-index: 5;
+  border: 0; border-radius: 999px; padding: 6px 12px; font: inherit; font-size: 12px; font-weight: 500;
+  background: rgba(255,255,255,.9); color: var(--ink); cursor: pointer;
+  box-shadow: 0 1px 2px rgba(0,0,0,.08); opacity: .75; transition: opacity .2s, background .2s;
+}
+.gcell:hover .gflip, .gflip:focus-visible { opacity: 1; }
+.gflip[aria-pressed="true"] { background: var(--ink); color: #fff; opacity: 1; }
+.gflip:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
+.gcell:hover .gtile { background: var(--surface-2); }
 .gmeta { display: flex; justify-content: space-between; align-items: end; gap: 10px; padding: 8px 4px 0; }
 .gmeta b { display: block; font-size: 15px; font-weight: 600; }
 .gmeta small { display: block; font-size: 12px; color: var(--muted); margin-top: 2px; }

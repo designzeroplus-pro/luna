@@ -420,33 +420,57 @@ function buildGallery() {
 
   const grid = $('#gallery-grid');
   TEMPLATES.forEach((t) => {
-    const a = document.createElement('a');
-    a.className = 'gtile';
-    a.href = '#edit';
-    a.dataset.id = t.id;
-    a.setAttribute('aria-label', `${t.name} 템플릿으로 시작: ${t.description}`);
-    a.innerHTML = `
-      <div class="gstage">
-        <canvas data-side="front" aria-hidden="true"></canvas>
-        <canvas data-side="back" aria-hidden="true"></canvas>
-      </div>
-      <div class="gmeta"><span><b>${t.name}</b><small>${t.description}</small></span><em>편집하기 →</em></div>`;
+    // 링크 안에 버튼을 넣을 수 없어 셀(div)이 링크와 뒷면 보기 버튼을 함께 감싼다
+    const cell = document.createElement('div');
+    cell.className = 'gcell';
+    cell.dataset.id = t.id;
+    cell.innerHTML = `
+      <a class="gtile" href="#edit" aria-label="${t.name} 템플릿으로 시작: ${t.description}">
+        <div class="gstage">
+          <canvas data-side="front" aria-hidden="true"></canvas>
+          <canvas data-side="back" aria-hidden="true"></canvas>
+        </div>
+        <div class="gmeta"><span><b>${t.name}</b><small>${t.description}</small></span><em>편집하기 →</em></div>
+      </a>
+      <button type="button" class="gflip" aria-pressed="false">뒷면 보기</button>`;
     // 편집기의 템플릿 버튼을 눌러 색상 상태까지 함께 맞춘다
-    a.addEventListener('click', () => { $(`.tpl[data-id="${t.id}"]`).click(); openTab('info'); });
-    grid.appendChild(a);
+    cell.querySelector('.gtile').addEventListener('click', () => { $(`.tpl[data-id="${t.id}"]`).click(); openTab('info'); });
+    cell.querySelector('.gflip').addEventListener('click', () => showBack(cell, !cell.classList.contains('show-back')));
+    // 마우스: 잠깐 머물면 뒷면이 앞으로 (빠르게 지나갈 때 깜빡이지 않도록 지연)
+    let timer;
+    cell.addEventListener('pointerenter', (e) => {
+      if (e.pointerType !== 'mouse') return;
+      timer = setTimeout(() => showBack(cell, true), 120);
+    });
+    cell.addEventListener('pointerleave', (e) => {
+      if (e.pointerType !== 'mouse') return;
+      clearTimeout(timer);
+      showBack(cell, false);
+    });
+    grid.appendChild(cell);
   });
   $('#heroCount').textContent = TEMPLATES.length;
   $('#statCount').textContent = TEMPLATES.length;
   filterGallery();
 }
 
+// 앞·뒷면 카드 순서를 바꾼다. 'was-back'은 뒷면에서 앞면으로 돌아오는 애니메이션용.
+function showBack(cell, on) {
+  if (cell.classList.contains('show-back') === on) return;
+  cell.classList.toggle('show-back', on);
+  cell.classList.toggle('was-back', !on);
+  const btn = cell.querySelector('.gflip');
+  btn.textContent = on ? '앞면 보기' : '뒷면 보기';
+  btn.setAttribute('aria-pressed', String(on));
+}
+
 function filterGallery() {
   $$('.chip').forEach((c) => c.classList.toggle('active', c.dataset.cat === category));
-  $$('.gtile').forEach((t) => { t.hidden = category !== 'all' && !(TAGS[t.dataset.id] || []).includes(category); });
+  $$('.gcell').forEach((t) => { t.hidden = category !== 'all' && !(TAGS[t.dataset.id] || []).includes(category); });
 }
 
 function renderGallery(data) {
-  $$('.gtile').forEach((tile) => {
+  $$('.gcell').forEach((tile) => {
     const tpl = tplById(tile.dataset.id);
     tile.querySelectorAll('canvas').forEach((cv) => renderCard(cv, tpl, cv.dataset.side, data, { dpi: previewDpi(cv) }));
   });
