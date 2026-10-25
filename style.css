@@ -1,4 +1,4 @@
-/* LUNA — x.ai 스타일 참고: 흰 바탕, 큰 흑색 타이포, 필 버튼, 부드러운 회색 타일 */
+/* LUNA — pale blue/lavender light, bold typography, and tactile card previews. */
 :root {
   --bg: #ffffff;
   --surface: #f4f4f3;
@@ -14,21 +14,43 @@
 html { scroll-behavior: smooth; scroll-padding-top: 72px; }
 html, body { margin: 0; }
 body {
+  position: relative; isolation: isolate; display: flow-root;
   font-family: var(--font);
   background: var(--bg);
   color: var(--ink);
   font-size: 14px;
   -webkit-font-smoothing: antialiased;
 }
+/* A full-width wash fades to white before the template collection. */
+body[data-view="home"]::before {
+  content: ''; position: absolute; z-index: -1; pointer-events: none;
+  top: 0; left: 0; right: 0; height: 620px;
+  background:
+    linear-gradient(to bottom, transparent 20%, #ffffff75 62%, #fff 100%),
+    radial-gradient(ellipse at 9% 5%, #80baff40, transparent 58%),
+    radial-gradient(ellipse at 88% 9%, #b49aff45, transparent 61%),
+    radial-gradient(ellipse at 48% 28%, #c4d6ff38, transparent 60%),
+    linear-gradient(120deg, #f3f8ff, #f6f2ff);
+}
+body[data-view="home"] .brand { color: #11133f; }
+body[data-view="home"] .brand-dot { background: #5143d9; }
 a { color: inherit; text-decoration: none; }
 [hidden] { display: none !important; }
 
 /* ───────── 헤더 ───────── */
 .top {
-  position: sticky; top: 0; z-index: 20;
+  position: sticky; top: 12px; z-index: 20;
   display: flex; align-items: center; justify-content: space-between; gap: 16px;
-  padding: 12px 28px; background: rgba(255,255,255,.82);
-  backdrop-filter: saturate(180%) blur(14px); -webkit-backdrop-filter: saturate(180%) blur(14px);
+  width: calc(100% - 48px); max-width: 1320px; min-height: 66px; margin: 14px auto 0;
+  padding: 11px 22px; border-radius: 24px;
+  border: 1px solid rgba(255,255,255,.8);
+  background: linear-gradient(120deg, #ffffffa3, #ffffff66);
+  backdrop-filter: saturate(180%) blur(28px); -webkit-backdrop-filter: saturate(180%) blur(28px);
+  box-shadow: inset 0 1px 0 #ffffffc9, inset 0 -1px 0 #ffffff45,
+    0 0 0 1px #343b6010, 0 6px 24px -10px #2d32602b;
+}
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  .top { background: #f7f8fdf5; }
 }
 .brand { font-weight: 500; font-size: 26px; letter-spacing: -1.2px; display: inline-flex; align-items: flex-end; gap: 4px; }
 .brand.small { font-size: 17px; letter-spacing: -.6px; }
@@ -75,13 +97,13 @@ body[data-view="edit"] .nav-link[href="#features"] { display: none; }
 .hero-motion-toggle[aria-pressed="true"] .motion-play { display: block; }
 .hero-line { display: inline-flex; align-items: baseline; gap: .18em; white-space: nowrap; }
 .hero-word {
-  position: relative; display: inline-flex; flex: none;
+  position: relative; display: inline-flex; flex: none; color: #4d3fc5;
   transition: width 580ms cubic-bezier(.22,1,.36,1);
   padding: .06em 0 .12em; margin: -.06em 0 -.12em; overflow: hidden;
 }
 .hero-word::after {
   content: ''; position: absolute; height: 2px; bottom: .08em; left: .06em; right: .06em;
-  background: var(--accent); opacity: .7;
+  background: linear-gradient(90deg, #3f83d9, #8a55df); opacity: .75;
   transform: scaleX(1); transform-origin: left center;
   transition: transform 580ms cubic-bezier(.22,1,.36,1), opacity 580ms ease-out;
 }
@@ -353,7 +375,7 @@ figcaption { text-align: center; color: var(--muted); font-size: 12px; margin-to
   .features { grid-template-columns: 1fr; padding: 56px 20px; }
 }
 @media (max-width: 900px) {
-  .top { padding: 10px 16px; }
+  .top { top: 8px; width: calc(100% - 24px); min-height: 60px; margin-top: 10px; padding: 9px 14px; border-radius: 22px; }
   .nav-link { display: none; }
   .layout { grid-template-columns: 1fr; padding: 8px 16px 32px; }
   .editor-bar { padding: 8px 16px 0; }
