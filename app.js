@@ -46,6 +46,9 @@ function load() {
         // Preserve personal information and logo settings while replacing the old design collection.
         Object.assign(merged, { designVersion: 2, template: 'air', font: 'auto', customColors: false, useLogo: false });
       }
+      // Replace saved serif choices without resetting personal information or colors.
+      if (['Bodoni Moda', 'Noto Serif KR'].includes(merged.font)) merged.font = 'Inter';
+      if (['Bodoni Moda', 'Noto Serif KR'].includes(merged.logo.font)) merged.logo.font = 'Inter';
       if (!TEMPLATES.some(t => t.id === merged.template)) merged.template = 'air';
       // 예전 버전의 예시 값이 그대로 남아 있으면 현재 예시 값으로 교체
       const OLD_SAMPLES = {
@@ -73,7 +76,7 @@ function save() {
 // ───────── 폰트 준비 (한글 웹폰트는 글자 단위로 분할 로드되므로 실제 문자열로 요청) ─────────
 async function prepFonts() {
   const sample = [...Object.values(state.info), state.logo.word, state.logo.initials, 'MTEWA·0123456789'].join('');
-  const fonts = new Set([state.font === 'auto' ? SANS : state.font, state.logo.font, SANS, SERIF, 'Pretendard', 'Noto Sans KR', 'Noto Serif KR']);
+  const fonts = new Set([state.font === 'auto' ? SANS : state.font, state.logo.font, SANS, INTER, 'Pretendard', 'Noto Sans KR']);
   const jobs = [];
   for (const f of fonts) for (const w of [400, 500, 700]) jobs.push(document.fonts.load(`${w} 16px "${f}"`, sample));
   await Promise.race([Promise.allSettled(jobs), new Promise((r) => setTimeout(r, 3000))]);
@@ -404,16 +407,19 @@ const TAGS = {
   horizon: ['minimal', 'classic'],
   air: ['minimal'], serif: ['classic'], signal: ['bold'], monogram: ['minimal'],
   folio: ['minimal'], grove: ['classic'], offset: ['bold'], poster: ['bold'],
+  atelier: ['classic'], contour: ['minimal', 'classic'], frame: ['minimal'],
+  terracotta: ['classic'], orbit: ['minimal'], column: ['minimal', 'classic'],
+  ribbon: ['minimal'], nocturne: ['classic'],
   index: ['minimal'], verso: ['bold'], vertical: ['bold'], signature: ['classic'],
 };
-const CATEGORIES = [['all', '전체'], ['minimal', '미니멀'], ['classic', '클래식'], ['bold', '볼드']];
+const CATEGORIES = [['all', '전체'], ['minimal', '미니멀'], ['classic', '클래식'], ['bold', '볼드'], ['deboss', '음각'], ['silk', '실크 코팅']];
 let category = 'all';
 
 function buildGallery() {
   const chips = $('#chips');
   CATEGORIES.forEach(([id, label]) => {
     const b = document.createElement('button');
-    b.type = 'button'; b.className = 'chip'; b.dataset.cat = id; b.textContent = label;
+    b.type = 'button'; b.className = 'chip'; b.dataset.cat = id; b.textContent = label; b.setAttribute('aria-pressed', 'false');
     b.addEventListener('click', () => { category = id; filterGallery(); });
     chips.appendChild(b);
   });
@@ -424,11 +430,15 @@ function buildGallery() {
     const cell = document.createElement('div');
     cell.className = 'gcell';
     cell.dataset.id = t.id;
+    const finish = MOCKUP_FINISHES[t.id];
+    if (finish) cell.dataset.finish = finish;
+    cell.dataset.scene = ['ivory', 'sand', 'stone', 'clay', 'sage', 'slate'][TEMPLATES.indexOf(t) % 6];
     cell.innerHTML = `
       <a class="gtile" href="#edit" aria-label="${t.name} 템플릿으로 시작: ${t.description}">
         <div class="gstage">
-          <canvas data-side="front" aria-hidden="true"></canvas>
-          <canvas data-side="back" aria-hidden="true"></canvas>
+          ${finish ? `<span class="gfinish">${FINISH_LABELS[finish]} 목업</span>` : ''}
+          <span class="gpaper" data-side="front"><canvas data-side="front" aria-hidden="true"></canvas></span>
+          <span class="gpaper" data-side="back"><canvas data-side="back" aria-hidden="true"></canvas></span>
         </div>
         <div class="gmeta"><span><b>${t.name}</b><small>${t.description}</small></span><em>편집하기 →</em></div>
       </a>
@@ -436,17 +446,6 @@ function buildGallery() {
     // 편집기의 템플릿 버튼을 눌러 색상 상태까지 함께 맞춘다
     cell.querySelector('.gtile').addEventListener('click', () => { $(`.tpl[data-id="${t.id}"]`).click(); openTab('info'); });
     cell.querySelector('.gflip').addEventListener('click', () => showBack(cell, !cell.classList.contains('show-back')));
-    // 마우스: 잠깐 머물면 뒷면이 앞으로 (빠르게 지나갈 때 깜빡이지 않도록 지연)
-    let timer;
-    cell.addEventListener('pointerenter', (e) => {
-      if (e.pointerType !== 'mouse') return;
-      timer = setTimeout(() => showBack(cell, true), 120);
-    });
-    cell.addEventListener('pointerleave', (e) => {
-      if (e.pointerType !== 'mouse') return;
-      clearTimeout(timer);
-      showBack(cell, false);
-    });
     grid.appendChild(cell);
   });
   $('#heroCount').textContent = TEMPLATES.length;
@@ -454,25 +453,30 @@ function buildGallery() {
   filterGallery();
 }
 
-// 앞·뒷면 카드 순서를 바꾼다. 'was-back'은 뒷면에서 앞면으로 돌아오는 애니메이션용.
+// 앞·뒷면을 명시적으로 전환해 버튼과 키보드의 상태를 일치시킨다.
 function showBack(cell, on) {
   if (cell.classList.contains('show-back') === on) return;
   cell.classList.toggle('show-back', on);
-  cell.classList.toggle('was-back', !on);
   const btn = cell.querySelector('.gflip');
   btn.textContent = on ? '앞면 보기' : '뒷면 보기';
   btn.setAttribute('aria-pressed', String(on));
 }
 
 function filterGallery() {
-  $$('.chip').forEach((c) => c.classList.toggle('active', c.dataset.cat === category));
-  $$('.gcell').forEach((t) => { t.hidden = category !== 'all' && !(TAGS[t.dataset.id] || []).includes(category); });
+  $$('.chip').forEach((c) => {
+    const active = c.dataset.cat === category;
+    c.classList.toggle('active', active); c.setAttribute('aria-pressed', String(active));
+  });
+  $$('.gcell').forEach((t) => { t.hidden = category !== 'all' && !(TAGS[t.dataset.id] || []).includes(category) && t.dataset.finish !== category; });
 }
 
 function renderGallery(data) {
   $$('.gcell').forEach((tile) => {
     const tpl = tplById(tile.dataset.id);
-    tile.querySelectorAll('canvas').forEach((cv) => renderCard(cv, tpl, cv.dataset.side, data, { dpi: previewDpi(cv) }));
+    tile.querySelectorAll('canvas').forEach((cv) => {
+      renderCard(cv, tpl, cv.dataset.side, data, { dpi: previewDpi(cv) });
+      if (tile.dataset.finish === 'deboss') applyDebossPreview(cv, cv.dataset.side);
+    });
   });
 }
 

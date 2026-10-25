@@ -1,11 +1,10 @@
 // 90 × 50 mm. All drawing coordinates are in millimetres, including the 1 mm bleed.
 const CARD = { W: 90, H: 50, B: 1 };
 const SANS = 'DM Sans';
-const SERIF = 'Bodoni Moda';
+const INTER = 'Inter';
 
 function fontStyle(ctx, size, o = {}) {
-  const serif = o.font === SERIF || o.font === 'Noto Serif KR';
-  ctx.font = `${o.w || 400} ${size}px "${o.font || SANS}", "${serif ? 'Noto Serif KR' : 'Noto Sans KR'}", ${serif ? 'serif' : 'sans-serif'}`;
+  ctx.font = `${o.w || 400} ${size}px "${o.font || SANS}", "Noto Sans KR", sans-serif`;
   if ('letterSpacing' in ctx) ctx.letterSpacing = `${o.ls || 0}px`;
 }
 
@@ -227,15 +226,12 @@ const TEMPLATES = [
     },
   },
   {
-    id: 'serif', name: '세리프 스튜디오', description: '큰 명조와 단정한 고딕의 대비',
-    palette: ['#131313', '#f5f4f0'], display: SERIF,
+    id: 'serif', name: '스튜디오', description: 'Inter 워드마크와 균형 잡힌 여백',
+    palette: ['#131313', '#f5f4f0'], display: INTER, body: INTER,
     front(ctx, d) {
       fillAll(ctx, d.a);
-      text(ctx, d.info.company, 45, 8, { font: d.font, color: d.c, size: 3.2, w: 700, align: 'center', max: 78 });
-      if (d.logo) wordmark(ctx, d, 45, 40, { size: 11, max: 80, height: 19, align: 'center' });
-      else text(ctx, d.info.tagline || d.info.company, 45, 44, {
-        font: d.display, size: 10.5, color: d.c, align: 'center', max: 82,
-      });
+      wordmark(ctx, d, 45, 28, { size: 9, w: 500, align: 'center', max: 72, height: 14 });
+      text(ctx, d.info.tagline || d.info.web, 45, 39, { font: d.font, size: 2.4, color: d.c, align: 'center', max: 72 });
     },
     back(ctx, d) {
       fillAll(ctx, d.a);
@@ -408,13 +404,13 @@ const TEMPLATES = [
     },
   },
   {
-    id: 'signature', name: '시그니처', description: '유려한 이니셜, 담백한 작은 글자',
-    palette: ['#34261e', '#f0e8df'], display: SERIF,
+    id: 'signature', name: '시그니처', description: '단정한 이니셜과 따뜻한 뉴트럴 톤',
+    palette: ['#34261e', '#f0e8df'], display: INTER, body: INTER,
     front(ctx, d) {
       fillAll(ctx, d.a);
       text(ctx, d.info.company, 5, 8, { font: d.font, size: 2.8, color: d.c, max: 80 });
       if (d.logo) logo(ctx, d.logo, 45, 28, 64, 25, 'center', 'middle');
-      else text(ctx, d.initials, 45, 38, { font: d.display, size: 31, color: d.c, max: 70, align: 'center', ls: -1 });
+      else text(ctx, d.initials, 45, 38, { font: d.display, size: 20, w: 500, color: d.c, max: 60, align: 'center', ls: -0.3 });
       text(ctx, d.info.web, 85, 46, { font: d.font, size: 2.6, color: d.c, max: 80, align: 'right' });
     },
     back(ctx, d) {
@@ -425,7 +421,127 @@ const TEMPLATES = [
       splitContacts(ctx, d, 34);
     },
   },
-];
+  {
+    id: 'atelier', name: '아틀리에', description: '버건디와 Inter로 완성한 차분한 균형',
+    palette: ['#632e3c', '#f1e9df'], display: INTER, body: INTER,
+    front(ctx, d) {
+      fillAll(ctx, d.a);
+      ctx.strokeStyle = d.c; ctx.lineWidth = 0.25; ctx.strokeRect(4, 4, 82, 42);
+      wordmark(ctx, d, 45, 29, { size: 9, w: 500, max: 68, align: 'center', height: 14 });
+      text(ctx, d.info.tagline || d.info.web, 45, 39, { font: d.font, size: 2.3, color: d.c, align: 'center', max: 68 });
+    },
+    back(ctx, d) {
+      fillAll(ctx, d.a); thinLine(ctx, 6, 6, 84, 6, d.c);
+      identity(ctx, d, 6, 17, 76, { size: 6 });
+      contactBlock(ctx, d, 6, 29, 78, 15, { size: 2.4, bottom: true, leading: 1.15 });
+    },
+  },
+  {
+    id: 'contour', name: '컨투어', description: '모래빛 종이 위에 흐르는 유기적인 선',
+    palette: ['#524a36', '#e9e0ce'], display: SANS,
+    front(ctx, d) {
+      fillAll(ctx, d.a);
+      ctx.save(); ctx.globalAlpha = 0.24; ctx.strokeStyle = d.c; ctx.lineWidth = 0.18;
+      for (let n = 0; n < 12; n++) {
+        ctx.beginPath(); ctx.ellipse(83, 5, 19 + n * 3.5, 12 + n * 2.8, -0.6, 0, Math.PI * 2); ctx.stroke();
+      }
+      ctx.restore();
+      wordmark(ctx, d, 7, 36, { size: 10, max: 72, height: 16 });
+      text(ctx, d.info.tagline || d.info.web, 7, 43, { font: d.font, size: 2.5, color: d.c, max: 74 });
+    },
+    back(ctx, d) {
+      fillAll(ctx, d.a); identity(ctx, d, 6, 13, 76, { size: 5.6 });
+      thinLine(ctx, 6, 25, 84, 25, d.c);
+      contactBlock(ctx, d, 6, 29, 78, 16, { size: 2.5, bottom: true });
+    },
+  },
+  {
+    id: 'frame', name: '프레임', description: '작은 블루 포인트와 정돈된 좌측 정렬',
+    palette: ['#244ca0', '#f2f4f5'], display: INTER, body: INTER,
+    front(ctx, d) {
+      fillAll(ctx, d.a);
+      thinLine(ctx, 7, 8, 18, 8, d.c, 0.6);
+      wordmark(ctx, d, 7, 29, { size: 10, w: 500, max: 76, height: 15 });
+      text(ctx, d.info.tagline || d.info.web, 7, 42, { font: d.font, size: 2.5, color: d.c, max: 76 });
+    },
+    back(ctx, d) {
+      fillAll(ctx, d.a);
+      identity(ctx, d, 7, 13, 76, { size: 5, w: 500 });
+      contactBlock(ctx, d, 7, 29, 76, 15, { size: 2.5, bottom: true });
+    },
+  },  {
+    id: 'terracotta', name: '테라코타', description: '브릭 컬러와 여백이 만드는 따뜻한 인상',
+    palette: ['#923f30', '#f7e9da'], display: INTER, body: INTER,
+    front(ctx, d) {
+      fillAll(ctx, d.c);
+      wordmark(ctx, d, 45, 27, { size: 9, w: 500, color: d.a, align: 'center', max: 72, height: 14, reverse: true });
+      text(ctx, d.info.tagline || d.info.web, 45, 39, { font: d.font, size: 2.4, color: d.a, align: 'center', max: 72 });
+    },
+    back(ctx, d) {
+      fillAll(ctx, d.a); identity(ctx, d, 7, 13, 76, { size: 5, w: 500 });
+      splitContacts(ctx, d, 31, { size: 2.5 });
+    },
+  },  {
+    id: 'orbit', name: '오르빗', description: '작은 원형 심볼과 절제된 오렌지 포인트',
+    palette: ['#c34b24', '#faf2e8'], display: INTER, body: INTER,
+    front(ctx, d) {
+      fillAll(ctx, d.a);
+      ctx.save(); ctx.strokeStyle = d.c; ctx.lineWidth = 0.55;
+      ctx.beginPath(); ctx.arc(77, 12, 4, 0, Math.PI * 2); ctx.stroke(); ctx.restore();
+      wordmark(ctx, d, 7, 31, { size: 10, w: 500, max: 72, height: 15 });
+      text(ctx, d.info.tagline || d.info.web, 7, 42, { font: d.font, size: 2.4, color: d.c, max: 76 });
+    },
+    back(ctx, d) {
+      fillAll(ctx, d.c);
+      const light = { ...d, c: d.a };
+      identity(ctx, light, 7, 13, 76, { size: 5, w: 500 });
+      contactBlock(ctx, light, 7, 29, 76, 15, { size: 2.5, bottom: true });
+    },
+  },  {
+    id: 'column', name: '칼럼', description: '에디토리얼 감성의 세로 구분과 여백',
+    palette: ['#343936', '#f4f3ed'], display: INTER, body: INTER,
+    front(ctx, d) {
+      fillAll(ctx, d.a); thinLine(ctx, 22, 6, 22, 44, d.c);
+      ctx.save(); ctx.translate(13, 43); ctx.rotate(-Math.PI / 2);
+      text(ctx, d.info.web, 0, 0, { font: d.font, size: 2.6, color: d.c, max: 36 }); ctx.restore();
+      wordmark(ctx, d, 29, 29, { size: 12, max: 55, height: 19 });
+      text(ctx, d.info.tagline || d.info.title, 29, 37, { font: d.font, size: 2.5, color: d.c, max: 55 });
+    },
+    back(ctx, d) {
+      fillAll(ctx, d.a); identity(ctx, d, 6, 14, 78, { size: 7 });
+      thinLine(ctx, 6, 26, 84, 26, d.c);
+      splitContacts(ctx, d, 30, { size: 2.5 });
+    },
+  },
+  {
+    id: 'ribbon', name: '리본', description: '로즈 톤과 얇은 컬러 밴드의 담백한 조화',
+    palette: ['#8c344a', '#f3e4e6'], display: INTER, body: INTER,
+    front(ctx, d) {
+      fillAll(ctx, d.a);
+      ctx.fillStyle = d.c; ctx.fillRect(-1, -1, 4, 52);
+      wordmark(ctx, d, 10, 28, { size: 10, w: 500, max: 70, height: 15 });
+      text(ctx, d.info.tagline || d.info.web, 10, 41, { font: d.font, size: 2.4, color: d.c, max: 70 });
+    },
+    back(ctx, d) {
+      fillAll(ctx, d.a);
+      identity(ctx, d, 7, 13, 76, { size: 5, w: 500 });
+      contactBlock(ctx, d, 7, 29, 76, 15, { size: 2.5, bottom: true });
+    },
+  },  {
+    id: 'nocturne', name: '녹턴', description: '딥 네이비 위의 선명하고 차분한 워드마크',
+    palette: ['#202e40', '#e7e9ec'], display: INTER, body: INTER,
+    front(ctx, d) {
+      fillAll(ctx, d.c);
+      wordmark(ctx, d, 7, 26, { size: 9, w: 500, color: d.a, max: 76, height: 14, reverse: true });
+      text(ctx, d.info.tagline || d.info.web, 7, 41, { font: d.font, size: 2.4, color: d.a, max: 76 });
+    },
+    back(ctx, d) {
+      fillAll(ctx, d.c);
+      const light = { ...d, c: d.a };
+      identity(ctx, light, 7, 13, 76, { size: 5, w: 500 });
+      contactBlock(ctx, light, 7, 29, 76, 15, { size: 2.5, bottom: true });
+    },
+  },];
 
 function templateStyle(tpl, data) {
   const [c, a] = data.customColors ? [data.c, data.a] : tpl.palette;

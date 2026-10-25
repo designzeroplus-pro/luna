@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>LUNA — 로고 & 명함 제작</title>
   <meta name="description" content="템플릿을 고르고 정보를 넣으면 끝. 로고를 만들고, 인쇄소용 PDF와 600dpi JPG로 명함을 무료로 내려받으세요." />
-  <link rel="canonical" href="https://luna-namecard.netlify.app/" />
+  <link rel="canonical" href="https://designzeroplus-pro.github.io/luna/" />
   <meta name="theme-color" content="#ffffff" />
   <link rel="icon" href="favicon.svg" type="image/svg+xml" />
 
@@ -13,20 +13,20 @@
   <meta property="og:type" content="website" />
   <meta property="og:site_name" content="LUNA" />
   <meta property="og:locale" content="ko_KR" />
-  <meta property="og:url" content="https://luna-namecard.netlify.app/" />
+  <meta property="og:url" content="https://designzeroplus-pro.github.io/luna/" />
   <meta property="og:title" content="LUNA — 작은 종이 위에, 나다운 인상." />
-  <meta property="og:description" content="로고 만들기부터 명함 템플릿 13종까지. 인쇄소용 PDF와 600dpi JPG로 무료 다운로드." />
-  <meta property="og:image" content="https://luna-namecard.netlify.app/og-image.png" />
+  <meta property="og:description" content="로고 만들기부터 명함 템플릿 21종까지. 인쇄소용 PDF와 600dpi JPG로 무료 다운로드." />
+  <meta property="og:image" content="https://designzeroplus-pro.github.io/luna/og-image.png" />
   <meta property="og:image:width" content="1200" />
   <meta property="og:image:height" content="630" />
   <meta property="og:image:alt" content="LUNA 로고와 명함 템플릿 미리보기" />
   <meta name="twitter:card" content="summary_large_image" />
   <meta name="twitter:title" content="LUNA — 작은 종이 위에, 나다운 인상." />
-  <meta name="twitter:description" content="로고 만들기부터 명함 템플릿 13종까지. 인쇄소용 PDF와 600dpi JPG로 무료 다운로드." />
-  <meta name="twitter:image" content="https://luna-namecard.netlify.app/og-image.png" />
+  <meta name="twitter:description" content="로고 만들기부터 명함 템플릿 21종까지. 인쇄소용 PDF와 600dpi JPG로 무료 다운로드." />
+  <meta name="twitter:image" content="https://designzeroplus-pro.github.io/luna/og-image.png" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=Bodoni+Moda:wght@400;500;700&family=Noto+Sans+KR:wght@400;500;700;900&family=Noto+Serif+KR:wght@400;500;700&family=IBM+Plex+Sans+KR:wght@400;600&family=Black+Han+Sans&family=Montserrat:wght@500;700;800&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=Inter:wght@400;500;700&family=Noto+Sans+KR:wght@400;500;700;900&family=IBM+Plex+Sans+KR:wght@400;600&family=Black+Han+Sans&family=Montserrat:wght@500;700;800&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard-dynamic-subset.min.css" />
   <link rel="stylesheet" href="style.css" />
 </head>
@@ -43,8 +43,14 @@
   <!-- ───────── 메인: 템플릿 갤러리 ───────── -->
   <div id="homeView">
     <section class="hero">
-      <a class="badge" href="#gallery"><span class="badge-new">New</span><span>템플릿 <b id="heroCount">13</b>종 공개</span><span aria-hidden="true">↗</span></a>
-      <h1 class="hero-title">작은 종이 위에,<br />나다운 인상.</h1>
+      <div class="hero-intro">
+      <a class="badge" href="#gallery"><span class="badge-new">New</span><span>템플릿 <b id="heroCount">21</b>종 공개</span><span aria-hidden="true">↗</span></a>
+      <button class="hero-motion-toggle" id="heroMotionToggle" type="button" aria-label="텍스트 애니메이션 일시정지" aria-pressed="false" hidden>
+        <svg class="motion-pause" width="12" height="12" viewBox="0 0 12 12" fill="currentColor" aria-hidden="true"><rect x="3" y="2" width="2" height="8" rx=".5"/><rect x="7" y="2" width="2" height="8" rx=".5"/></svg>
+        <svg class="motion-play" width="12" height="12" viewBox="0 0 12 12" fill="currentColor" aria-hidden="true"><path d="M3 2l7 4-7 4z"/></svg>
+      </button>
+      </div>
+      <h1 class="hero-title" aria-label="작은 종이 위에, 나다운 인상."><span aria-hidden="true">작은 종이 위에,</span><br /><span class="hero-line" aria-hidden="true"><span class="hero-word" id="heroWord">나다운</span><span>인상.</span></span></h1>
       <p class="hero-sub">템플릿을 고르고 정보를 넣으면 끝. 인쇄소용 PDF와 고해상도 JPG로 바로 받으세요.</p>
       <div class="hero-actions">
         <a href="#gallery" class="pill dark">템플릿 둘러보기 <span aria-hidden="true">›</span></a>
@@ -64,7 +70,8 @@
           <input data-info="company" placeholder="회사명" aria-label="회사명" />
         </div>
       </div>
-      <div class="chips" id="chips" role="tablist"></div>
+      <div class="chips" id="chips" role="group" aria-label="템플릿 스타일 필터"></div>
+      <p class="gallery-note">종이의 질감까지, 나다운 분위기를 골라보세요. <span>앞·뒷면 모두 편집할 수 있어요.</span></p>
       <div class="gallery" id="gallery-grid"></div>
     </section>
 
@@ -78,7 +85,7 @@
           <a href="#gallery" class="pill light">템플릿 보기</a>
         </div>
         <dl class="stats">
-          <div><dt id="statCount">13</dt><dd>템플릿</dd></div>
+          <div><dt id="statCount">21</dt><dd>템플릿</dd></div>
           <div><dt>600dpi</dt><dd>고해상도 출력</dd></div>
           <div><dt>92×52</dt><dd>도련 포함 mm</dd></div>
         </dl>
@@ -195,7 +202,7 @@
               <select data-logo="font">
                 <option value="Noto Sans KR">본고딕</option>
                 <option value="Black Han Sans">검은고딕</option>
-                <option value="Noto Serif KR">본명조</option>
+                <option value="Inter">Inter</option>
                 <option value="IBM Plex Sans KR">IBM Plex</option>
                 <option value="Montserrat">Montserrat (영문)</option>
               </select>
@@ -238,9 +245,8 @@
           <select id="cardFont">
             <option value="auto">템플릿 추천 서체</option>
             <option value="DM Sans">DM Sans + 본고딕</option>
-            <option value="Bodoni Moda">Bodoni Moda + 본명조</option>
+            <option value="Inter">Inter + 본고딕</option>
             <option value="Noto Sans KR">본고딕</option>
-            <option value="Noto Serif KR">본명조</option>
             <option value="IBM Plex Sans KR">IBM Plex Sans KR</option>
           </select>
         </label>
@@ -281,6 +287,8 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <script src="logo.js"></script>
   <script src="templates.js"></script>
+  <script src="mockups.js"></script>
   <script src="app.js"></script>
+  <script src="hero.js"></script>
 </body>
 </html>
